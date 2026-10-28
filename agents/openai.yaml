@@ -1,0 +1,6 @@
+interface:
+  display_name: "造世界玩法构建"
+  short_description: "在造世界中新建场景和资源，完成玩法交互、效果与归档"
+
+policy:
+  allow_implicit_invocation: true
