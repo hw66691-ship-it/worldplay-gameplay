@@ -11,7 +11,7 @@ description: >-
 
 - 用户说“在造世界中新构建……”“在造世界中添加……玩法”“给造世界的物体加交互/效果”，或明确指向造世界编辑器资源时使用。先弄清用户要交付的是地形、地图摆放、Module、UI、单物体交互，还是跨资源玩法；同一任务可涉及数项。
 - 把用户指定的项目目录作为工作区。若未指定，先在当前上下文寻找实际项目和 `ai-sessions/workspace_*`；不要把编辑器的 `resources/addon` 当成游戏项目。找不到实际项目时，完成可独立完成的设计和模板准备，再询问项目位置。需要创建独立新项目时，遵守用户的工作区偏好。
-- 本机已知 addon 位置为 `D:\douyinzaoshijie\造世界编辑器\resources\addon`，仅作查找入口；安装位置可能变化，使用前确认。这里的 `agent-runtime/templates` 是底稿，`agent-runtime/tools` 是编辑器工具实现，`lua-support` 是运行库与类型提示。游戏改动写入实际 `workspace_*`，不直接改 addon 来实现某个玩法。
+- addon 路径不固定，不要写死盘符或应用名。先在当前编辑器进程/应用包、工作区和 `ai-sessions/workspace_*` 的父级目录中查找候选 addon 根目录；Windows 常见形态是 `<安装目录>\resources\addon`，macOS 常见形态是 `<应用>.app/Contents/Resources/addon`，Linux 常见形态是 `<安装目录>/resources/addon`。以同时包含 `agent-runtime/`、`lua-support/` 和 `node_modules/@ai-world-creator/worldplay-toolkit-core/` 的目录作为 `ADDON_ROOT`；找到多个候选时优先选择与当前编辑器版本和正在使用的工作区匹配者。找不到时记录未找到并停止依赖 addon 的步骤，不要猜测路径。这里的 `ADDON_ROOT/agent-runtime/templates` 是底稿，`ADDON_ROOT/agent-runtime/tools` 是编辑器工具实现，`ADDON_ROOT/lua-support` 是运行库与类型提示。游戏改动写入实际 `workspace_*`，不直接改 addon 来实现某个玩法。
 - 先检查工作区现有文件、资源 ID、模型节点、`meta.json`、脚本和既有交互。延续既有命名及运行约定。必要时阅读当前 addon 的相关工具说明和模板；某些附带文档可能是加密占位内容，不要把占位文本当作完整规范。
 
 ## 交付合同
@@ -62,9 +62,9 @@ description: >-
 
 ## 常见约束与定位线索
 
-- Module 归档只接受非空 `pi-*.lua` 与 `ms-*.lua` 角色脚本；子目录形成 binding `targetPath`。交互脚本调用触发/按钮 API 时，同一目标路径需要相应 `meta.attributes[<targetPath>].trigger`。可查 addon 的 `tools/archive/module/model-script-bundle/worldplay-hamlet-script-validation.ts` 与 `worldplay-hamlet-script-discovery.ts`。
-- `RuntimeScope.from(self)`、`scope:FindTransform(path)`、`scope:GetScript(scriptId)` 可用于资源内节点和脚本查找；跨资源 Host 用 `scope:GetRuntimeHostScript("runtime-host.lua")`。具体写法参照 addon 的 `lua-support/Library/official/core/runtime_scope.lua` 和 `templates/runtime-host/assets/runtime-host.lua`。
+- Module 归档只接受非空 `pi-*.lua` 与 `ms-*.lua` 角色脚本；子目录形成 binding `targetPath`。交互脚本调用触发/按钮 API 时，同一目标路径需要相应 `meta.attributes[<targetPath>].trigger`。可查 addon 的 `agent-runtime/tools/archive/module/model-script-bundle/worldplay-hamlet-script-validation.ts` 与 `agent-runtime/tools/archive/module/model-script-bundle/worldplay-hamlet-script-discovery.ts`。
+- `RuntimeScope.from(self)`、`scope:FindTransform(path)`、`scope:GetScript(scriptId)` 可用于资源内节点和脚本查找；跨资源 Host 用 `scope:GetRuntimeHostScript("runtime-host.lua")`。具体写法参照 addon 的 `lua-support/Library/official/core/runtime_scope.lua` 和 `agent-runtime/templates/runtime-host/assets/runtime-host.lua`。
 - `official.interaction.trigger` 可查找 BoxCollider 并调整范围；`official.ui.animation` 提供常用 UI tween。先确认目标确实有对应 Collider/UI 对象。
 - Runtime UI 横屏入口是 `html/1920x1080.html`。存在 helper Lua 时必须有非空 `scripts/ui.lua`；完整 Mix 中的 UI 需要运行脚本。归档还会校验 HTML 节点、图片路径和布局。
 - Placement Map 的 `main.js` 写 Module 代理与 `THREE.Matrix4` 位姿；placement 矩阵保持单位缩放。Map 单资源归档构建预览和 manifest，最终 Mix 归档再结合真实 Module GLB 求统一缩放。不要把这个链路误作 PCG 地形生成。
-- 可复用的例子在 addon 的 `templates/module-interaction/assets/`：`four-wheel-vehicle-single-file-base.lua`（触发区、按钮、座位和驾驶）、`pickup-raycast-rifle/`（拾取、所有权、射线和枪口反馈）、`humanoid/motion/` 与 `creature/motion/`（运动状态）。按实际玩法裁剪，不整份复制无关逻辑。
+- 可复用的例子在 addon 的 `agent-runtime/templates/module-interaction/assets/`：`four-wheel-vehicle-single-file-base.lua`（触发区、按钮、座位和驾驶）、`pickup-raycast-rifle/`（拾取、所有权、射线和枪口反馈）、`humanoid/motion/` 与 `creature/motion/`（运动状态）。按实际玩法裁剪，不整份复制无关逻辑。
